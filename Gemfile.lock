@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    shopify_dump (0.1.0)
+    shopify_dump (0.1.1)
       rake (~> 13.0.3)
       shopify_api (~> 9.4.1)
 
