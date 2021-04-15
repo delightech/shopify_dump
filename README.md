@@ -61,6 +61,12 @@ QUERY
 dumper = ShopifyDump::Dumper.new
 dumper.dump(query, 'product_variants')
 ```
+4. Saved by JSONL file
+```
+shopify_product_variants.josnl
+```
+About JSONL<br>
+see: https://github.com/Shopify/shopify_api#step-3-retrieve-your-data
 
 ## Development
 
