@@ -22,14 +22,48 @@ Or install it yourself as:
 
 ## Usage
 
-1. Please make Rakefile and write below.
+1. Please make Rakefile and write below
 ```ruby
 require 'shopify_api'
 load 'shopify_api/graphql/task.rake'
 ```
-2. Execute below rake task
+2. Execute below rake task(require some environmet variables)
 ```sh
 rake shopify_api:graphql:dump
+```
+3. Dump shopify data by GraphQL query
+```ruby
+require "shopify_dump"
+
+query = <<~"QUERY"
+{
+  productVariants(query: "created_at:>=2021-01-01 AND created_at:<2021-04-01") {
+    edges {
+      node {
+        id
+        availableForSale
+        barcode
+        compareAtPrice
+        createdAt
+        displayName
+        inventoryQuantity
+        price
+        sku
+        taxable
+        title
+        updatedAt
+        title
+        product {
+          id
+          title
+        }
+      }
+    }
+  }
+}
+QUERY
+dumper = ShopifyDump::Dumper.new
+dumper.dump(query, 'product_variants')
 ```
 
 ## Development
