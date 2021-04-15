@@ -1,12 +1,8 @@
 # ShopifyDump
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/shopify_dump`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Dump shopify data by GraphQL
 
 ## Installation
-
-Add this line to your application's Gemfile:
 
 ```ruby
 gem 'shopify_dump'
@@ -29,7 +25,7 @@ load 'shopify_api/graphql/task.rake'
 ```
 2. Execute below rake task(require some environmet variables)
 ```sh
-rake shopify_api:graphql:dump
+rake shopify_api:graphql:dump SHOP_URL="https://${API_KEY}:${PASSWORD}@${SHOP_NAME}.myshopify.com" API_VERSION=2020-01
 ```
 3. Dump shopify data by GraphQL query
 ```ruby
