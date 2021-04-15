@@ -10,3 +10,5 @@ require "rubocop/rake_task"
 RuboCop::RakeTask.new
 
 task default: %i[spec rubocop]
+
+load 'shopify_api/graphql/task.rake'

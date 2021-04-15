@@ -5,5 +5,4 @@ require_relative "shopify_dump/dumper"
 
 module ShopifyDump
   class Error < StandardError; end
-  # Your code goes here...
 end
