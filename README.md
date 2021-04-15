@@ -22,7 +22,15 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+1. Please make Rakefile and write below.
+```ruby
+require 'shopify_api'
+load 'shopify_api/graphql/task.rake'
+```
+2. Execute below rake task
+```sh
+rake shopify_api:graphql:dump
+```
 
 ## Development
 
