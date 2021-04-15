@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'shopify_api'
-require 'logger'
-require 'open3'
+require "logger"
+require "net/http"
+require "shopify_api"
 
 class ShopifyDump::Dumper
-  API_KEY = ENV['API_KEY']
-  PASSWORD = ENV['PASSWORD']
-  SHOP_NAME = ENV['SHOP_NAME']
-  API_VERSION = ENV['API_VERSION']
+  API_KEY = ENV["API_KEY"]
+  PASSWORD = ENV["PASSWORD"]
+  SHOP_NAME = ENV["SHOP_NAME"]
+  API_VERSION = ENV["API_VERSION"]
 
   def initialize
     ShopifyAPI::Base.site = "https://#{API_KEY}:#{PASSWORD}@#{SHOP_NAME}.myshopify.com"
@@ -17,46 +17,22 @@ class ShopifyDump::Dumper
     @logger = Logger.new(STDOUT)
   end
 
-  def dump
+  def dump(query, file_suffix = "")
     # start bulk operation
-    start_bulk_operation
+    start_bulk_operation(query)
     # download jsonl file
-    download_jsonl(fetch_download_url)
+    download_jsonl(fetch_download_url, file_suffix)
   end
 
   private
 
-  def start_bulk_operation
+  def start_bulk_operation(query)
     @client.query(
-      @client.parse <<~'GRAPHQL'
+      @client.parse(<<~"GRAPHQL")
         mutation {
           bulkOperationRunQuery(
             query:"""
-            {
-              productVariants(query: "created_at:>=2021-01-01 AND created_at:<2021-04-01") {
-                edges {
-                  node {
-                    id
-                    availableForSale
-                    barcode
-                    compareAtPrice
-                    createdAt
-                    displayName
-                    inventoryQuantity
-                    price
-                    sku
-                    taxable
-                    title
-                    updatedAt
-                    title
-                    product {
-                      id
-                      title
-                    }
-                  }
-                }
-              }
-            }
+            #{query}
             """
           ) {
             bulkOperation {
@@ -76,13 +52,14 @@ class ShopifyDump::Dumper
   def fetch_download_url
     i = 0
     while result = current_bulk_operation
-      if result.to_h['data']['currentBulkOperation']['status'] == 'COMPLETED'
-        return result.to_h['data']['currentBulkOperation']['url']
-      elsif result.to_h['data']['currentBulkOperation']['status'] == 'RUNNING'
+      if result.to_h["data"]["currentBulkOperation"]["status"] == "COMPLETED"
+        return result.to_h["data"]["currentBulkOperation"]["url"]
+      elsif result.to_h["data"]["currentBulkOperation"]["status"] == "RUNNING"
         i += 10
         sleep(i)
       else
-        @logger.info("Bulk operation not running. status:#{result.to_h['data']['currentBulkOperation']['status']}")
+        @logger.warn("Bulk operation not running. " \
+                     "Result:#{result.to_h["data"]["currentBulkOperation"]}")
         break
       end
     end
@@ -90,7 +67,7 @@ class ShopifyDump::Dumper
 
   def current_bulk_operation
     @client.query(
-      @client.parse <<-'GRAPHQL'
+      @client.parse(<<-'GRAPHQL')
         {
           currentBulkOperation {
             id
@@ -108,10 +85,10 @@ class ShopifyDump::Dumper
     )
   end
 
-  def download_jsonl(req_url)
-    out, err, status = Open3.capture3("curl '#{req_url}' -o product_variants.jsonl")
-    @logger.info(out)
-    @logger.info(err)
-    @logger.error('Error occur') if status != 0
+  def download_jsonl(url, file_suffix)
+    open("shopify_#{file_suffix}.jsonl", "w") do |io|
+      res = Net::HTTP.get_response(URI(url))
+      io.write(res.body) if res.is_a?(Net::HTTPSuccess)
+    end
   end
 end
